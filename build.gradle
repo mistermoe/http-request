@@ -1,0 +1,58 @@
+apply plugin: "java"
+apply plugin: "maven"
+apply plugin: "maven-publish"
+
+description = 'a library that simplifies making http requests'
+
+
+sourceSets {
+  main {
+    resources {
+      srcDir 'src/resources'
+    }
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {  
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.sparkjava:spark-core:2.3'
+}
+
+install {
+  repositories.mavenInstaller {
+    pom.groupId = "com.mistermoe"
+    pom.artifactId = "http-request"
+    pom.version = '1.0.0'
+  }
+}
+
+tasks.withType(Test) {
+  testLogging {
+    events "passed", "skipped", "failed", "standardOut"
+    showExceptions true
+    exceptionFormat "full"
+    showCauses true
+    showStackTraces true
+
+    debug {
+      events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+      exceptionFormat "full"
+    }
+
+    info.events = debug.events
+    info.exceptionFormat = debug.exceptionFormat
+
+    afterSuite { desc, result ->
+      if (!desc.parent) {
+        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+        def startItem = '|  ', endItem = '  |'
+        def repeatLength = startItem.length() + output.length() + endItem.length()
+        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+      }
+    }
+  }
+}
